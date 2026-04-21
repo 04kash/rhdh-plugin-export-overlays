@@ -160,26 +160,19 @@ spec:
         "modified",
       );
 
-      await expect
-        .poll(
-          async () => {
-            await page.reload();
-            await uiHelper.openSidebar("Catalog");
-            await uiHelper.selectMuiBox("Kind", "Component");
-            await uiHelper.searchInputPlaceholder(catalogRepoName);
+      await expect(async () => {
+        await page.reload();
+        await uiHelper.openSidebar("Catalog");
+        await uiHelper.selectMuiBox("Kind", "Component");
+        await uiHelper.searchInputPlaceholder(catalogRepoName);
 
-            await page.getByRole("link", { name: catalogRepoName }).click();
-            // wait for page to load
-            await uiHelper.waitForLoad(5000);
-            return await page.getByText(updatedDescription).isVisible();
-          },
-          {
-            message: `Component ${catalogRepoName} should be updated with new description`,
-            timeout: 60000,
-            intervals: [10000],
-          },
-        )
-        .toBe(true);
+        await page.getByRole("link", { name: catalogRepoName }).click();
+        await uiHelper.waitForLoad(5000);
+        await uiHelper.verifyText(updatedDescription);
+      }).toPass({
+        timeout: 60_000,
+        intervals: [10_000],
+      });
     });
 
     test("Deleting an entity from the catalog", async ({ page, uiHelper }) => {
